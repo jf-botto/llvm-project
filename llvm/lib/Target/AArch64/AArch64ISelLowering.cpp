@@ -22099,9 +22099,25 @@ static SDValue performIntrinsicCombine(SDNode *N,
                        N->getOperand(1));
   case Intrinsic::aarch64_sve_ext:
     return LowerSVEIntrinsicEXT(N, DAG);
-  case Intrinsic::aarch64_sve_mul_u:
-    return DAG.getNode(AArch64ISD::MUL_PRED, SDLoc(N), N->getValueType(0),
-                       N->getOperand(1), N->getOperand(2), N->getOperand(3));
+  case Intrinsic::aarch64_sve_mul_u: {
+    EVT MulType = N->getValueType(0);
+    SDValue PRED = N->getOperand(1);
+    SDValue LHS = N->getOperand(2);
+    SDValue RHS = N->getOperand(3);
+    
+    APInt LHSValue;
+
+    if (ISD::isConstantSplatVector(LHS.getNode(), LHSValue) && LHSValue == 0){
+      EVT ElemType = LHS.getValueType().getVectorElementType();
+      SDValue ConstantValue = DAG.getConstant(0, SDLoc(N), ElemType);
+
+      return DAG.getNode(AArch64ISD::DUP_MERGE_PASSTHRU, SDLoc(N), MulType, PRED, ConstantValue,
+       DAG.getUNDEF(MulType));
+    } else 
+      return DAG.getNode(AArch64ISD::MUL_PRED, SDLoc(N), MulType,
+                       PRED, LHS, RHS);
+    
+    }
   case Intrinsic::aarch64_sve_smulh_u:
     return DAG.getNode(AArch64ISD::MULHS_PRED, SDLoc(N), N->getValueType(0),
                        N->getOperand(1), N->getOperand(2), N->getOperand(3));
@@ -22184,8 +22200,24 @@ static SDValue performIntrinsicCombine(SDNode *N,
     return DAG.getNode(ISD::ABDU, SDLoc(N), N->getValueType(0),
                        N->getOperand(2), N->getOperand(3));
   case Intrinsic::aarch64_sve_sdiv_u:
-    return DAG.getNode(AArch64ISD::SDIV_PRED, SDLoc(N), N->getValueType(0),
-                       N->getOperand(1), N->getOperand(2), N->getOperand(3));
+  {
+    EVT DivType = N->getValueType(0);
+    SDValue PRED = N->getOperand(1);
+    SDValue LHS = N->getOperand(2);
+    SDValue RHS = N->getOperand(3);
+    
+    APInt LHSValue;
+
+    if (ISD::isConstantSplatVector(LHS.getNode(), LHSValue) && LHSValue == 0){
+      EVT ElemType = LHS.getValueType().getVectorElementType();
+      SDValue ConstantValue = DAG.getConstant(0, SDLoc(N), ElemType);
+
+      return DAG.getNode(AArch64ISD::DUP_MERGE_PASSTHRU, SDLoc(N), DivType, PRED, ConstantValue, DAG.getUNDEF(DivType));
+    } else 
+      return DAG.getNode(AArch64ISD::SDIV_PRED, SDLoc(N), DivType,
+                       PRED, LHS, RHS);
+    
+    }
   case Intrinsic::aarch64_sve_udiv_u:
     return DAG.getNode(AArch64ISD::UDIV_PRED, SDLoc(N), N->getValueType(0),
                        N->getOperand(1), N->getOperand(2), N->getOperand(3));
