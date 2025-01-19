@@ -22271,8 +22271,16 @@ static SDValue performIntrinsicCombine(SDNode *N,
     return DAG.getNode(AArch64ISD::UMAX_PRED, SDLoc(N), N->getValueType(0),
                        N->getOperand(1), N->getOperand(2), N->getOperand(3));
   case Intrinsic::aarch64_sve_lsl_u:
-    return DAG.getNode(AArch64ISD::SHL_PRED, SDLoc(N), N->getValueType(0),
-                       N->getOperand(1), N->getOperand(2), N->getOperand(3));
+    {    
+        APInt LHS, RHS;
+        if (ISD::isConstantSplatVector(N->getOperand(2).getNode(), LHS) && 
+              ISD::isConstantSplatVector(N->getOperand(3).getNode(), RHS)) {
+                uint64_t Result = LHS.getZExtValue() << RHS.getZExtValue();
+                return DAG.getConstant(Result, SDLoc(N), N->getValueType(0));
+        }
+      return DAG.getNode(AArch64ISD::SHL_PRED, SDLoc(N), N->getValueType(0),
+                      N->getOperand(1), N->getOperand(2), N->getOperand(3));
+    }  
   case Intrinsic::aarch64_sve_lsr_u:
     return DAG.getNode(AArch64ISD::SRL_PRED, SDLoc(N), N->getValueType(0),
                        N->getOperand(1), N->getOperand(2), N->getOperand(3));

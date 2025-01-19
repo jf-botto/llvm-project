@@ -7,8 +7,7 @@ target triple = "aarch64-unknown-linux-gnu"
 define <vscale x 16 x i8> @test_sve_lsl_const_fold_i8(<vscale x 16 x i1> %pg, <vscale x 16 x i8> %a) {
 ; CHECK-LABEL: test_sve_lsl_const_fold_i8:
 ; CHECK:       // %bb.0:
-; CHECK-NEXT:    mov z0.b, #8 // =0x8
-; CHECK-NEXT:    lsl z0.b, z0.b, #2
+; CHECK-NEXT:    mov z0.b, #32 // =0x20
 ; CHECK-NEXT:    ret
   %1 = tail call <vscale x 16 x i1> @llvm.aarch64.sve.convert.from.svbool.nxv16i1(<vscale x 16 x i1> %pg)
   %2 = tail call <vscale x 16 x i8> @llvm.aarch64.sve.lsl.u.nxv16i8(<vscale x 16 x i1> %1, <vscale x 16 x i8> splat (i8 8), <vscale x 16 x i8> splat (i8 2))
@@ -29,8 +28,7 @@ define <vscale x 16 x i8> @test_sve_lsl_no_fold(<vscale x 16 x i1> %pg, <vscale 
 define <vscale x 4 x i32> @test_sve_lsl_const_fold_i32(<vscale x 16 x i1> %pg) {
 ; CHECK-LABEL: test_sve_lsl_const_fold_i32:
 ; CHECK:       // %bb.0:
-; CHECK-NEXT:    mov z0.s, #5 // =0x5
-; CHECK-NEXT:    lsl z0.s, z0.s, #2
+; CHECK-NEXT:    mov z0.s, #20 // =0x14
 ; CHECK-NEXT:    ret
   %1 = tail call <vscale x 4 x i1> @llvm.aarch64.sve.convert.from.svbool.nxv4i1(<vscale x 16 x i1> %pg)
   %2 = tail call <vscale x 4 x i32> @llvm.aarch64.sve.lsl.u.nxv4i32(<vscale x 4 x i1> %1, <vscale x 4 x i32> splat (i32 5), <vscale x 4 x i32> splat (i32 2))
@@ -40,8 +38,7 @@ define <vscale x 4 x i32> @test_sve_lsl_const_fold_i32(<vscale x 16 x i1> %pg) {
 define <vscale x 2 x i64> @test_sve_lsl_const_fold_i64(<vscale x 16 x i1> %pg) {
 ; CHECK-LABEL: test_sve_lsl_const_fold_i64:
 ; CHECK:       // %bb.0:
-; CHECK-NEXT:    mov z0.d, #8 // =0x8
-; CHECK-NEXT:    lsl z0.d, z0.d, #2
+; CHECK-NEXT:    mov z0.d, #32 // =0x20
 ; CHECK-NEXT:    ret
   %1 = tail call <vscale x 2 x i1> @llvm.aarch64.sve.convert.from.svbool.nxv2i1(<vscale x 16 x i1> %pg)
   %2 = tail call <vscale x 2 x i64> @llvm.aarch64.sve.lsl.u.nxv2i64(<vscale x 2 x i1> %1, <vscale x 2 x i64> splat (i64 8), <vscale x 2 x i64> splat (i64 2))
