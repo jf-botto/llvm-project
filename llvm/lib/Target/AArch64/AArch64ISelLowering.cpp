@@ -6282,9 +6282,6 @@ SDValue AArch64TargetLowering::LowerINTRINSIC_WO_CHAIN(SDValue Op,
   case Intrinsic::aarch64_sve_lastb:
     return DAG.getNode(AArch64ISD::LASTB, dl, Op.getValueType(),
                        Op.getOperand(1), Op.getOperand(2));
-  case Intrinsic::aarch64_sve_rev:
-    return DAG.getNode(ISD::VECTOR_REVERSE, dl, Op.getValueType(),
-                       Op.getOperand(1));
   case Intrinsic::aarch64_sve_tbl:
     return DAG.getNode(AArch64ISD::TBL, dl, Op.getValueType(),
                        Op.getOperand(1), Op.getOperand(2));
