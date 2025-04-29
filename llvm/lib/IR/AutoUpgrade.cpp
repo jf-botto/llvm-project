@@ -903,6 +903,25 @@ static bool upgradeArmOrAarch64IntrinsicFunction(bool IsArm, Function *F,
         return false; // No other 'aarch64.sve.ld*'.
       }
 
+      if (Name.consume_front("rev")) {
+        // 'aarch64.sve.rev*'.
+
+        static const Regex RevRegex("(.nxv[a-z0-9]+|$)");
+        if (RevRegex.match(Name)) {
+          Type *ScalarTy =
+              cast<VectorType>(F->getReturnType())->getElementType();
+          ElementCount EC =
+              cast<VectorType>(F->arg_begin()->getType())->getElementCount();
+          Type *Ty = VectorType::get(ScalarTy, EC);
+          // 'aarch64.sve.rev.*' -> 'llvm.vector.reverse.*'.
+          NewFn = Intrinsic::getOrInsertDeclaration(
+              F->getParent(), Intrinsic::vector_reverse, Ty);
+          return true;
+        }
+
+        return false; // No match for 'rev' or 'rev.*'.
+      }
+
       if (Name.consume_front("tuple.")) {
         // 'aarch64.sve.tuple.*'.
         if (Name.starts_with("get")) {
